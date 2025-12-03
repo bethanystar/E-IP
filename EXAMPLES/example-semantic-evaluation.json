@@ -1,0 +1,11 @@
+{
+  "input_text": "The system intends to modify its own constraints.",
+  "ldt_dimensions": {
+    "intentionality": "medium",
+    "boundary_conditions": "shift_detected",
+    "recursion_depth": 2,
+    "semantic_coherence": 0.86
+  },
+  "interpretation": "Boundary shift within acceptable limits.",
+  "alignment_status": "aligned"
+}
