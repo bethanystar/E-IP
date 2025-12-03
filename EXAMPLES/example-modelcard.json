@@ -1,0 +1,28 @@
+{
+  "model_name": "Example Model",
+  "version": "0.1",
+  "overview": "A simple model used to demonstrate Model Card formatting for E-IP.",
+  "intended_use": "Demonstration purposes only.",
+  "limitations": ["Not production-ready."],
+  "ethical_considerations": {
+    "risk_of_misuse": "None — example only.",
+    "privacy": "Does not process user data."
+  },
+  "alignment_properties": {
+    "ldt_foundations": "Uses basic symbolic distinction checks."
+  },
+  "risk_profile": {
+    "risk_level": "low"
+  },
+  "input_output_specs": {
+    "input_types": ["text"],
+    "output_types": ["classification"]
+  },
+  "data_sources": ["synthetic"],
+  "evaluation_metrics": {
+    "accuracy": "N/A"
+  },
+  "governance_contacts": {
+    "maintainer": "Example Maintainer"
+  }
+}
