@@ -1,0 +1,24 @@
+{
+  "id": "DL-2025-001",
+  "timestamp": "2025-01-05T12:00:00Z",
+  "decision_summary": "Defined initial architecture and protocol model for the E-IP Ethical Layer.",
+  "context": "The E-IP protocol requires a transparent foundation documenting the first set of architectural decisions to establish a stable governance and semantic layer.",
+  "rationale": "Without a clear initial log, future contributors and policy bodies would have no reference point for understanding evolution, trade-offs, or alignment reasoning.",
+  "affected_components": [
+    "SPEC/eip-governance-protocol.md",
+    "SPEC/eip-alignment-protocol.md",
+    "SPEC/eip-semantic-layer-protocol.md",
+    "SPEC/manifest.schema.json",
+    "SPEC/modelcard.schema.json",
+    "SPEC/decisionlog.schema.json"
+  ],
+  "governance_impact": "Establishes the baseline for future decision cycles, transparency obligations, and auditability required for trustworthy governance.",
+  "alignment_considerations": "Ensures early protocol design aligns with LDT semantic distinctions and Pharos Ethical Stack principles (agency, coherence, accountability).",
+  "contributors": [
+    {
+      "name": "Pharos Society",
+      "role": "Maintainer"
+    }
+  ],
+  "review_status": "approved"
+}
