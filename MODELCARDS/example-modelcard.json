@@ -1,0 +1,63 @@
+{
+  "model_name": "E-IP Alignment Agent",
+  "version": "0.1",
+  "overview": "A lightweight agent designed to evaluate model behavior and system events using E-IP alignment rules and LDT semantic distinctions. The agent monitors for violations related to autonomy, coherence, accountability, and ethical constraints.",
+  "intended_use": "To act as an embedded middleware alignment layer for systems interacting with the Pharos Ethical Stack. Primary functions include event evaluation, semantic parsing, risk flagging, and decision justification.",
+  "limitations": [
+    "Not a general-purpose AI model.",
+    "Does not enforce policy; only evaluates and outputs structured findings.",
+    "Dependent on integrity of incoming audit logs, manifests, and system telemetry."
+  ],
+  "ethical_considerations": {
+    "risk_of_misuse": "If disabled or bypassed, the system loses visibility into alignment violations.",
+    "bias_risks": "Relies on upstream data sources; biased telemetry may affect interpretations.",
+    "privacy": "Processes metadata only—no personal data unless explicitly provided in violation of protocol."
+  },
+  "alignment_properties": {
+    "ldt_foundations": "Semantic distinctions are evaluated using LDT rules: intentionality, boundary conditions, recursion depth, and symbolic coherence.",
+    "eip_alignment_checks": [
+      "Autonomy preservation",
+      "Transparent semantic transitions",
+      "Justification reasoning integrity",
+      "Governance rules conformance"
+    ]
+  },
+  "risk_profile": {
+    "risk_level": "low",
+    "model_failure_modes": [
+      "Incorrectly classifying borderline events",
+      "Misinterpreting malformed semantic inputs"
+    ],
+    "safety_dependencies": [
+      "Up-to-date protocol standards",
+      "Integrity of SPEC layer schemas"
+    ]
+  },
+  "input_output_specs": {
+    "input_types": [
+      "E-IP telemetry",
+      "Semantic traces",
+      "Decision logs",
+      "Manifest updates"
+    ],
+    "output_types": [
+      "Alignment compliance reports",
+      "Risk flags",
+      "Semantic explanations"
+    ]
+  },
+  "data_sources": [
+    "System-level telemetry",
+    "Semantic routing metadata",
+    "Protocol state signatures"
+  ],
+  "evaluation_metrics": {
+    "alignment_precision": "TBD",
+    "semantic_consistency_score": "TBD",
+    "false_positive_rate": "TBD"
+  },
+  "governance_contacts": {
+    "maintainer": "Pharos Society",
+    "email": "governance@pharos.org"
+  }
+}
