@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "E-IP Model Card Schema",
+  "type": "object",
+  "properties": {
+    "model_id": { "type": "string" },
+    "version": { "type": "string" },
+    "architecture": { "type": "string" },
+    "training_data_overview": { "type": "string" },
+    "intended_use": { "type": "string" },
+    "limitations": { "type": "string" },
+    "safety_constraints": { "type": "string" },
+    "ethical_standards": { "type": "array", "items": { "type": "string" } },
+    "risk_factors": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["model_id", "version", "intended_use"]
+}
