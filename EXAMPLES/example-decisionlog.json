@@ -1,0 +1,19 @@
+{
+  "id": "DL-EXAMPLE-001",
+  "timestamp": "2025-01-01T00:00:00Z",
+  "decision_summary": "Created initial example files for the E-IP repository.",
+  "context": "Developers need simple examples to understand E-IP artifacts.",
+  "rationale": "Provides onboarding materials and improves clarity for contributors.",
+  "affected_components": [
+    "EXAMPLES/example-manifest.json",
+    "EXAMPLES/example-modelcard.json",
+    "EXAMPLES/example-decisionlog.json"
+  ],
+  "governance_impact": "Improves transparency and usability.",
+  "alignment_considerations": "Supports clarity and interpretability within LDT-aligned design.",
+  "contributors": [{
+    "name": "Pharos Society",
+    "role": "Maintainer"
+  }],
+  "review_status": "approved"
+}
