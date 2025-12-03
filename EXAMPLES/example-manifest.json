@@ -1,0 +1,36 @@
+{
+  "id": "example-system",
+  "version": "0.1",
+  "system_type": "demo_service",
+  "description": "An example system used to demonstrate how E-IP manifests function.",
+  "capabilities": [
+    "receive_telemetry",
+    "emit_alignment_events"
+  ],
+  "constraints": [
+    "read-only semantic evaluation"
+  ],
+  "dependencies": {
+    "software": ["python>=3.11"]
+  },
+  "telemetry_requirements": {
+    "expected_inputs": ["semantic_event"],
+    "emitted_outputs": ["alignment_flag"]
+  },
+  "governance_hooks": {
+    "rule_checks": ["coherence_check"]
+  },
+  "ldt_semantic_profile": {
+    "core_dimensions": ["symbolic_boundary_conditions"]
+  },
+  "maintainers": [
+    {
+      "name": "Example Maintainer",
+      "contact": "maintainer@example.org"
+    }
+  ],
+  "verification": {
+    "schema_version": "1.0",
+    "signature": "none"
+  }
+}
