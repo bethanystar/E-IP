@@ -1,0 +1,76 @@
+{
+  "id": "alignment-agent",
+  "version": "0.1",
+  "system_type": "alignment_middleware",
+  "description": "A lightweight agent that evaluates semantic events, alignment conditions, and governance rules as defined in the E-IP protocol.",
+  "capabilities": [
+    "Evaluate incoming E-IP telemetry",
+    "Perform LDT semantic parsing",
+    "Flag misalignment or governance violations",
+    "Emit structured alignment reports",
+    "Subscribe to system event streams"
+  ],
+  "constraints": [
+    "Read-only evaluation (no enforcement)",
+    "Dependent on accurate upstream telemetry",
+    "Cannot modify system state",
+    "No access to private or sensitive user data"
+  ],
+  "dependencies": {
+    "software": [
+      "python>=3.11",
+      "ldt-semantic-engine>=0.1",
+      "eip-telemetry-client>=0.1"
+    ],
+    "protocol": [
+      "E-IP Governance Protocol v0.1",
+      "E-IP Alignment Protocol v0.1",
+      "E-IP Semantic Layer Protocol v0.1"
+    ]
+  },
+  "telemetry_requirements": {
+    "expected_inputs": [
+      "semantic_event_stream",
+      "governance_state_updates",
+      "alignment_thresholds",
+      "manifest_updates"
+    ],
+    "emitted_outputs": [
+      "alignment_report",
+      "risk_flag",
+      "semantic_trace_explanation"
+    ]
+  },
+  "governance_hooks": {
+    "rule_checks": [
+      "autonomy_preservation",
+      "semantic_transition_validity",
+      "justification_integrity",
+      "alignment_compliance"
+    ],
+    "audit_interfaces": [
+      "decisionlog_link",
+      "modelcard_link",
+      "governance_event_log"
+    ]
+  },
+  "ldt_semantic_profile": {
+    "core_dimensions": [
+      "intentionality",
+      "symbolic_boundary_conditions",
+      "recursion_depth",
+      "semantic_coherence"
+    ],
+    "interpretation_strategy": "Evaluates symbolic distinctions using LDT formalism to detect misalignment or incoherence in system-level decisions."
+  },
+  "maintainers": [
+    {
+      "name": "Pharos Society",
+      "contact": "governance@pharos.org"
+    }
+  ],
+  "verification": {
+    "schema_version": "1.0",
+    "signature": "TBD"
+  }
+}
