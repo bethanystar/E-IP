@@ -1,0 +1,10 @@
+{
+  "event_type": "alignment_check",
+  "timestamp": "2025-01-01T12:00:00Z",
+  "source_system": "example-system",
+  "payload": {
+    "semantic_condition": "boundary_shift_detected",
+    "rule_evaluated": "coherence_check",
+    "result": "pass"
+  }
+}
