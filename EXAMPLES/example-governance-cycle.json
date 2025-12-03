@@ -1,0 +1,7 @@
+{
+  "stage": "review",
+  "decision_id": "DL-EXAMPLE-001",
+  "reviewers": ["Pharos Governance Board"],
+  "outcome": "approved",
+  "notes": "Example governance approval cycle for demonstration."
+}
