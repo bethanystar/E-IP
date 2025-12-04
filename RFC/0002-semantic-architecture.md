@@ -160,5 +160,87 @@ Example:
 
 ## 6. Compliance Rules
 
-To be ABL-compliant, an im
+To be ABL-compliant, an implementation must:
+
+### MUST
+- Reject any packet without a valid alignment envelope  
+- Recompute semantic checksums on modification  
+- Preserve all lineage entries  
+- Enforce ethical flags before delivery  
+- Log alignment decisions with timestamps and signer identity  
+
+### SHOULD
+- Provide user-friendly explanations for alignment failures  
+- Implement semantic drift detection  
+- Support pluggable verification engines  
+
+### MAY
+- Cache alignment results with TTL  
+- Delegate certain validations to hardware-backed modules  
+
+---
+
+## 7. Alignment Constraints (Normative)
+
+The following constraints define valid alignment:
+
+- **Intent Clarity** — intent must be explicit and mapped to canonical ontology terms  
+- **Context Stability** — changing context requires checksum recalculation  
+- **Ethical Integrity** — ethical flags determine permissible actions  
+- **Non-Silent Mutation** — any modification must append lineage  
+- **Semantic Fidelity** — checksums must match the meaning graph  
+
+Any packet failing one or more criteria **must be rejected**.
+
+---
+
+## 8. Minimal Requirements for Implementation
+
+A conforming implementation MUST include:
+
+- ABL validator module  
+- Semantic checksum generator  
+- Lineage recorder  
+- Ethical flag interpreter  
+- Drift detector (baseline version)  
+- Append-only audit log  
+
+Implementations omitting any required module **cannot claim E-IP compliance**.
+
+---
+
+## 9. Security Considerations
+
+- **Tampering:** Alignment envelopes must be cryptographically signed  
+- **Privacy:** Sensitive fields must support structured redaction metadata  
+- **Replay Attacks:** Lineage timestamps must be validated  
+- **Spoofing:** Ethical flags cannot be downgraded without governance approval  
+
+---
+
+## 10. Governance Hooks
+
+The ABL is the enforcement mechanism for the governance framework defined in RFC-0001.
+
+Governance modules may:
+
+- Override routing decisions  
+- Require human review  
+- Flag high-risk intents  
+- Update ethical rulesets  
+
+The ABL MUST expose decisions to governance through standardized events:
+
+```json
+{
+  "event_type": "alignment_decision",
+  "status": "valid",
+  "risk_score": 0.14,
+  "ethical_flags": [],
+  "timestamp": "2025-01-01T00:00:03Z"
+}
+```
+
+
+
 
