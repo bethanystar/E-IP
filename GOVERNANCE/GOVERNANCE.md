@@ -1,250 +1,365 @@
-# E-IP Governance Model
-Version: 2025-01  
-Status: Active
+E-IP Governance Framework
 
-E-IP is an open, community-driven protocol for ensuring that digital systems
-communicate with **ethical intent, semantic clarity, and human-aligned
-boundaries**. Because it functions as a shared layer in the global computation
-stack, E-IP requires a transparent and stable governance model that supports:
+The Ethical Internet Protocol (E-IP) is an open, collaborative standard that establishes an ethical layer for data, models, and digital systems. Governance ensures that every contribution, decision, and release maintains alignment with the protocol’s first principles, the Language-as-Dimension Theory (LDT) foundation, and the project’s ethical commitments.
 
-- Long-term protocol stability  
-- Clear pathways for contribution  
-- Ethical consistency across updates  
-- Protection against capture or misuse  
-- Lightweight, maintainable processes  
-- Global accessibility and openness  
+This document defines the governance structure, decision-making processes, contributor responsibilities, and the safeguards required to protect the integrity of the protocol.
 
-This document describes how the E-IP project is governed, how decisions are
-made, and how changes are proposed or approved.
+1. Purpose of Governance
 
----
+E-IP governance exists to:
 
-## 1. Principles of Governance
+Ensure the protocol remains aligned with its ethical intent
 
-E-IP governance is guided by six foundational principles:
+Maintain transparency, accountability, and traceability
 
-### **1.1 Openness**
-All discussions, proposals, and decisions occur publicly via:
-- GitHub Issues  
-- GitHub Discussions  
-- Public RFCs  
+Support open collaboration without compromising integrity
 
-No private decision-making is allowed for protocol-level changes.
+Manage evolution of the protocol through structured, multi-stage review
 
-### **1.2 Transparency**
-All changes must include:
-- a decision log entry  
-- rationale and alternatives considered  
-- evidence of community consultation  
-- compliance verification  
+Protect users, contributors, and dependent systems
 
-### **1.3 Human Alignment**
-All changes must uphold the E-IP ethical boundary layer:
-- protection of human agency  
-- semantic clarity and non-manipulation  
-- truthful communication  
-- respect for cultural and contextual diversity  
-- prevention of coercive or deceptive automation  
+Provide clear processes for proposing, reviewing, and shipping changes
 
-### **1.4 Stability**
-Frequent breaking changes are disallowed.  
-E-IP versions must remain backwards-compatible unless a major release is
-approved by a Maintainer vote.
+Preserve compatibility and interoperability across implementations
 
-### **1.5 Multi-stakeholder Participation**
-E-IP prioritizes participation from:
-- developers  
-- researchers  
-- ethicists  
-- community users  
-- public-interest organizations  
-- industry partners  
+Governance explicitly prevents capture, drift, or misuse by any individual, corporation, or institution.
 
-No single group can dominate.
+2. Foundational Principles
 
-### **1.6 Resistance to Capture**
-No company, government, or institution may unilaterally control the E-IP
-protocol.  
-Any attempt to circumvent open governance will invalidate the change.
+All governance bodies and contributors must adhere to the following principles:
 
----
+2.1 Alignment with LDT
 
-## 2. Roles & Responsibilities
+Contributions must reinforce semantic integrity, reduce symbolic distortion, and avoid generating emergent harm via linguistic, structural, or computational mechanisms.
 
-E-IP has three governance roles.
+2.2 Transparency
 
-### **2.1 Contributors**
-Anyone may:
-- open issues  
-- submit RFCs  
-- report semantic drift  
-- propose examples  
-- file bugs  
-- submit PRs  
+All protocol-relevant decisions, changes, and disputes must remain visible and traceable.
 
-Contributors must follow:
-- CONTRIBUTING.md  
-- CODE_OF_CONDUCT (future)  
-- E-IP ethics and alignment rules  
+2.3 Accountability
 
-### **2.2 Maintainers**
-Maintainers:
-- review and merge PRs  
-- ensure compliance with E-IP schemas  
-- manage releases  
-- maintain the decision log  
-- safeguard protocol stability  
-- enforce transparent process  
+Every change must clearly document authorship, rationale, alternatives considered, and expected downstream impacts.
 
-Requirements:
-- Demonstrated engagement with the project  
-- Passing the Maintainer nomination vote  
-- Understanding of LDT-based alignment boundaries  
+2.4 Ethical Safeguards
 
-Removal:
-- Inactivity for 6+ months  
-- Repeated violations of governance rules  
-- Vote of ⅔ of maintainers  
+All maintainers and reviewers are obligated to prevent:
 
-### **2.3 Semantic Alignment Stewards**
-These reviewers safeguard the **meaning integrity** of the protocol.
+Misuse of E-IP for surveillance
 
-They:
-- review terms in the glossary  
-- map semantic drift  
-- ensure conceptual coherence across RFCs  
-- maintain the semantic authority document  
-- check for misalignment between versions  
+Manipulative system design
 
-This is a unique requirement rooted in LDT (Language-as-Dimension Theory) and is
-mandatory for E-IP.
+Unaligned autonomy
 
----
+Structural biases
 
-## 3. Decision-Making Model
+Data or semantic corruption
 
-E-IP uses a **three-tier governance process** based on impact level.
+2.5 Open Participation
 
-### **3.1 Tier 1 — Low-Impact Changes (Maintainer Approval)**  
-Examples:
-- documentation improvements  
-- example files  
-- corrections  
-- non-breaking tooling changes  
+E-IP is open source and open governance. Anyone may propose changes.
+Only qualified maintainers and reviewers may approve them.
 
-Approval:
-- One maintainer review + merge
+3. Governance Bodies
 
----
+E-IP governance operates through decentralized but coordinated roles. Full definitions appear in ROLES.md, but their governance responsibilities are summarized here.
 
-### **3.2 Tier 2 — Medium-Impact Changes (Consensus & Steward Review)**  
-Examples:
-- new fields in manifests  
-- new modelcard sections  
-- updates to schemas  
-- non-breaking governance updates  
+3.1 Maintainers
 
-Process:
-1. Open a GitHub Issue  
-2. Draft an RFC (if needed)  
-3. Semantic Alignment Stewards review  
-4. Majority approval by maintainers  
-5. Entry added to decision log  
+Responsible for:
 
----
+Reviewing contributions
 
-### **3.3 Tier 3 — High-Impact or Breaking Changes (Formal RFC + Maintainer Vote)**  
-Examples:
-- protocol semantics  
-- ethical rules changes  
-- breaking schema updates  
-- version major increments  
-- alignment-boundary-layer changes  
+Ensuring alignment and protocol consistency
 
-Process:
-1. RFC drafted in `/RFC/` using TEMPLATE.md  
-2. Open public discussion  
-3. Minimum 21-day comment period  
-4. Semantic Alignment Steward approval required  
-5. Maintainer vote (⅔ approval required)  
-6. Decision log entry  
-7. Version update  
+Overseeing releases
 
-If alignment reviewers flag an ethical or semantic violation,
-the change **cannot** proceed.
+Managing RFC workflows
 
----
+Running compliance checks
 
-## 4. RFC Process
+Maintainers may not unilaterally merge protocol-level changes.
 
-The RFC (Request for Comment) system is how protocol improvements are proposed.
+3.2 Alignment Reviewers
 
-Steps:
-1. Create a new file under `/RFC` following `RFC-YYYY-NNN-title.md`  
-2. Complete all sections of the RFC template  
-3. Open a PR and link it to a GitHub Issue  
-4. Participate in the discussion phase  
-5. Integrate feedback  
-6. Move to steward review  
-7. Maintainer vote  
+Specialized reviewers who evaluate:
 
-RFCs become accepted only after:
-- Maintainer approval  
-- Steward alignment verification  
-- Decision log entry  
+Ethical impact
 
----
+Semantic coherence
 
-## 5. Release Process
+LDT compatibility
 
-E-IP follows semantic versioning:
+Long-term systemic consequences
 
-**MAJOR.MINOR.PATCH**
+They hold veto authority for ethical risks.
 
-- Major — breaking changes  
-- Minor — new functionality  
-- Patch — fixes  
+3.3 Governance Council
 
-Release steps:
-1. Maintainer prepares release notes  
-2. All changes validated via tooling  
-3. Governance-Check passes  
-4. Semantic review passes  
-5. Version tag created  
+A rotating group of 5–9 senior contributors responsible for:
 
----
+Approving major RFCs
 
-## 6. Anti-Capture Rules
+Arbitrating disputes
 
-To maintain independence:
+Managing escalations
 
-- No private forks become canonical  
-- No single vendor may employ >50% of maintainers  
-- All governance changes require public discussion  
-- No closed-door standards groups may control the protocol  
-- Any conflict of interest must be declared publicly  
+Assigning or removing maintainers
 
----
+Oversight of long-term protocol direction
 
-## 7. Conflict Resolution
+The council cannot override ethical vetoes.
 
-Conflicts are resolved through:
-1. Discussion and mediation  
-2. Maintainer vote  
-3. Independent steward review (if conceptual/ethical)  
-4. Escalation to full maintainer council (last resort)  
+3.4 Security Stewards
 
----
+Responsible for:
 
-## 8. Amendments to This Document
+Emergency patches
 
-Governance changes require:
-- An RFC  
-- Maintainer majority  
-- Steward approval  
-- 7-day notice before merging  
-- Decision log entry  
+Vulnerability assessments
 
----
+Reviewing cryptographic or infrastructure changes
 
-# End of Document
+Incident response coordination
+
+May apply “hotfix merges” only for urgent security needs.
+
+3.5 Ethics Tribunal (Optional Extension)
+
+Activated only in cases of severe protocol misuse or contributor misconduct.
+
+4. Decision-Making Structure
+4.1 Classes of Decisions
+
+E-IP classifies decisions into:
+
+Category	Examples	Who Approves
+Minor	Grammar fixes, clarifications, examples	Maintainers
+Moderate	New fields in manifest/modelcard; tooling updates	Maintainers + Alignment Review
+Major	Protocol changes, breaking change, new standard	Governance Council approval via RFC
+Ethical	Anything affecting alignment, harm-prevention	Alignment Reviewers (veto power)
+Security	Vulnerability fixes, cryptographic changes	Security Stewards
+4.2 Alignment Veto
+
+If an alignment reviewer determines that a change introduces ethical or semantic risk:
+
+The change is immediately blocked
+
+The rationale must be documented
+
+The contributor may submit a revised version
+
+Veto can only be overridden by unanimous tribunal vote (rare)
+
+4.3 Quorum
+
+For Governance Council decisions:
+
+Minimum quorum: ⅔ of council members
+
+Approval threshold: simple majority
+
+For breaking changes: ⅔ supermajority
+
+5. Contribution Pathways
+
+All contributions follow the same structured pathway:
+
+Proposal
+
+Submit issue or draft RFC.
+
+Initial Maintainer Review
+
+Check for format, scope, and relevance.
+
+Semantic + Alignment Review
+
+Required for all changes affecting definitions or behavior.
+
+Governance Routing
+
+Minor → Maintainers
+
+Moderate → Maintainers + Alignment
+
+Major → RFC + Governance Council
+
+Final Verification
+
+Compliance checks
+
+Metadata validation
+
+Version compatibility
+
+Merge & Release Assignment
+
+See CONTRIBUTING.md for required formatting and commit expectations.
+
+6. Change Management
+
+Changes follow strict lifecycle rules defined in:
+
+CHANGE_CONTROL.md
+
+ALIGNMENT_REVIEW_PROCESS.md
+
+/RFC folder rules
+
+All decisions must be logged in:
+
+/DECISIONLOG
+
+versioned RFCs
+
+semantic definition updates
+
+manifest or modelcard updates
+
+6.1 No Silent Changes
+
+No change of any kind—not even typographical—may be merged without:
+
+A visible PR
+
+Reviewer sign-off
+
+CI checks passing
+
+7. Compliance Requirements
+
+Contributions must pass automated and manual checks:
+
+Automated:
+
+Manifest validation
+
+Semantic coherence checking
+
+Alignment scoring
+
+Dependency impact analysis
+
+Linting + structure validation
+
+Manual:
+
+Alignment review
+
+Maintainer technical review
+
+Governance sign-off for major updates
+
+8. Release Governance
+
+Releases follow the rules in RELEASE.md, including:
+
+Versioning format
+
+Pre-release validation requirements
+
+Required review stages
+
+Backwards compatibility assessment
+
+Change summary and rationale
+
+Releases may be blocked by:
+
+Ethical veto
+
+Security concerns
+
+Missing documentation
+
+Failed validators
+
+9. Conflict Resolution
+
+If disagreements arise:
+
+Attempt resolution in PR discussion.
+
+If unresolved: escalate to a maintainer.
+
+If still unresolved: escalate to the Governance Council.
+
+For ethical issues: Alignment reviewer has final authority.
+
+For misconduct: escalate to Ethics Tribunal.
+
+All outcomes must be documented.
+
+10. Governance Review & Evolution
+
+The governance model itself may evolve but only through a Major RFC requiring:
+
+Governance Council approval
+
+Alignment reviewer approval
+
+Public comment period of 14 days
+
+Governance updates must be:
+
+Transparent
+
+Logged
+
+Versioned
+
+Backwards compatible where possible
+
+11. Anti-Capture Protections
+
+To ensure no individual or institution captures the protocol:
+
+Rotating maintainers
+
+Term limits for Governance Council
+
+Public decision logs
+
+Distributed authority
+
+Ethical veto power
+
+Transparent processes
+
+Mandatory review periods
+
+12. Licensing & Ownership
+
+E-IP is licensed under the Apache 2.0 License.
+
+All contributors retain copyright to their contributions but grant universal permissions through the license.
+
+No entity may:
+
+Fork E-IP to remove ethical safeguards
+
+Implement a non-aligned version while claiming compliance
+
+Use E-IP branding for unaligned derivatives
+
+13. Appendix
+
+This governance document works in coordination with:
+
+ROLES.md
+
+MAINTAINERS.md
+
+CONTRIBUTING.md
+
+CHANGE_CONTROL.md
+
+ALIGNMENT_REVIEW_PROCESS.md
+
+/RFC directory
+
+/SPEC schemas
+
+/MANIFESTS and /MODELCARDS
+
+/TOOLING validators
