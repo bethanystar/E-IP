@@ -85,38 +85,80 @@ Every packet entering E-IP must carry an `alignment_envelope` containing:
   },
   "risk_score": 0.0
 }
-
----
-
+```
 ## 5. Semantic Transport Layer (STL)
-
-The Semantic Transport Layer (STL) provides transport, routing, and integrity guarantees for semantic packets validated by the ABL.
 
 The ABL hands validated packets to the STL with the following guarantees:
 
-- **alignment_status** = "valid"
-- **sgl_version** (from RFC-0003 L0) is attached
-- **lineage** is complete and append-only
-- **risk_flags** are present and immutable
-- **ethical_flags** are preserved
+- `alignment_status = "valid"`
+- `sgl_version` (from RFC-0003 L0) is attached
+- Lineage is complete and append-only
+- Risk flags are present and immutable
+- Ethical flags are preserved
 
-The STL is responsible for routing and lineage-preserving transport but **cannot override ABL judgments**.
-
----
+The STL is responsible for routing and lineage-preserving transport and **cannot override ABL judgments**.
 
 ### 5.1 STL Responsibilities
 
-- Encapsulate semantic objects in transport-safe envelopes  
-- Provide consistent serialization and deserialization  
-- Preserve semantic lineage and integrity metadata  
-- Enforce ABL alignment constraints during transmission  
-- Provide hooks for governance, audits, and compliance  
+- Preserve semantic lineage  
+- Route packets without modification  
+- Reject packets missing required ABL fields  
+- Maintain transport-level logs  
+- Expose routing metadata to Governance hooks  
+
+### 5.2 STL Constraints
+
+- MUST NOT mutate semantic content  
+- MUST retain lineage entries  
+- MAY append transport metadata (non-semantic)  
+- MUST return routing errors upstream  
+
+### 5.3 STL Packet Format
+
+```json
+{
+  "packet_id": "",
+  "alignment_status": "valid",
+  "sgl_version": "",
+  "lineage": [],
+  "ethical_flags": [],
+  "risk_flags": [],
+  "transport_metadata": {}
+}
+```
+
+### 5.4 STL Routing Rules
+
+#### 5.4.1 Deterministic Routing
+The STL MUST route packets based on:
+
+- declared intent  
+- ethical flags  
+- risk scores  
+- destination capabilities  
+- governance routing policies  
+
+#### 5.4.2 Lineage-Preserving Transport
+The STL MUST guarantee:
+
+- lineage is append-only  
+- no field in the ABL envelope is altered  
+- routing hops are recorded
+
+Example:
+
+```json
+{
+  "routing_hops": [
+    {"node": "node_A", "timestamp": "2025-01-01T00:00:00Z"},
+    {"node": "node_B", "timestamp": "2025-01-01T00:00:01Z"}
+  ]
+}
+```
 
 ---
 
-### 5.2 STL Envelope Format
+## 6. Compliance Rules
 
-Each semantic packet MUST contain the following fields:
-
-
+To be ABL-compliant, an im
 
