@@ -1,67 +1,78 @@
-# RFC-0006: Semantic Transport Layer (STL)
+RFC-0006: Semantic Transport Layer (STL) Specification
 
-**Category:** Standards Track  
-**Status:** Proposed Standard  
-**Year:** 2025  
+Category: Standards Track
+Status: Proposed Standard
+Year: 2025
 
----
+1. Purpose
 
-## **1. Overview**
+This RFC defines the Semantic Transport Layer (STL) for the E-IP protocol stack.
+STL is responsible for:
 
-The **Semantic Transport Layer (STL)** is the routing, delivery, and semantic-preservation transport layer of the E-IP protocol.  
-Where RFC-0002 (ABL) validates alignment, STL ensures that **validated packets move through the network without semantic drift, checksum corruption, or lineage loss**.
+Maintaining semantic integrity during packet movement
 
-This RFC defines:
+Ensuring meaning-safe transmission across nodes
 
-- STL routing primitives  
-- STL packet lifecycle  
-- Session and channel semantics  
-- Reliability rules  
-- Lineage-preserving forwarding  
-- Semantic hop integrity  
-- Failure handling  
+Preserving context, alignment, and lineage metadata
 
----
+Providing continuity guarantees between hops
 
-## **2. Design Goals**
+STL operates above the Alignment Boundary Layer (ABL) and below the Application Layer.
 
-The STL MUST:
+2. Requirements
 
-- Preserve meaning exactly as validated at the ABL  
-- Maintain full lineage across all hops  
-- Provide deterministic transport guarantees  
-- Prevent silent mutation during routing  
-- Guarantee checksum continuity  
-- Support multi-agent and multi-model forwarding  
+All STL-compliant nodes MUST:
 
-The STL MUST NOT:
+Validate semantic integrity before forwarding packets
 
-- Override ABL judgments  
-- Modify ethical flags  
-- Alter high-level intent  
+Attach immutable hop metadata
 
----
+Recompute semantic checksums
 
-## **3. Core STL Concepts**
+Enforce ethical transport constraints
 
-### **3.1 STL Session**
+Reject malformed or misaligned packets
 
-A session represents a semantic conversation channel with:
+Maintain complete lineage through all hops
 
-- `session_id`
-- `origin_node`
-- `destination_node`
-- `context_scope`
-- `sgl_version`
+Nodes unable to perform these functions MUST NOT advertise STL compliance.
 
-Sessions enable stateful continuity of context across multiple transmissions.
+3. STL Transport Model
 
-### **3.2 STL Hop**
+The Semantic Transport Layer forwards packets using the following principles:
 
-A “hop” is a single transfer between nodes.  
+Meaning is treated as a stateful property, not a payload
+
+Packet validity depends on semantic coherence, not just format
+
+Each hop recomputes and verifies semantic integrity
+
+Nodes contribute to an immutable lineage chain
+
+STL MUST NOT alter packet meaning
+
+3.1 STL Object Schema
+
+All STL messages MUST follow this structure:
+
+{
+  "packet_id": "...",
+  "hop_sequence": [],
+  "lineage_chain": [],
+  "context_scope_hash": "...",
+  "semantic_checksum": "...",
+  "transport_signature": "...",
+  "constraints": {
+    "meaning_invariance": true,
+    "ethical_routing": true
+  }
+}
+
+3.2 STL Hop
+
+A “hop” is a single transfer between nodes.
 Each hop must append immutable lineage metadata:
 
-```json
 {
   "hop_id": "...",
   "timestamp": "...",
@@ -71,384 +82,145 @@ Each hop must append immutable lineage metadata:
   "transport_signature": "..."
 }
 
-## **3.3 Semantic Continuity Guarantee**
+3.3 Semantic Continuity Guarantee
 
 Every STL-enabled node MUST validate semantic consistency before forwarding a packet.
 
 At each hop, the node MUST recompute:
 
-- `semantic_checksum`
-- `context_scope_hash`
-- `signature_integrity`
+semantic_checksum
 
-If any recomputed value fails to match the values in the packet header,  
-the node MUST halt forwarding and return:
+context_scope_hash
 
-**STL-CHECKSUM-MISMATCH**
+signature_integrity
 
-Nodes SHOULD log the mismatch event into the distributed lineage ledger.
+If any recomputed value fails to match the values in the packet header, the node MUST halt forwarding and return:
 
+Error Code: STL-CHECKSUM-MISMATCH
+Status: Hard Failure
 
-## **3.4 Semantic Field Compression (SFC)**
+Packets that fail semantic continuity MUST NOT be retransmitted.
 
-STL uses adaptive compression to minimize overhead while preserving semantic structure.
+4. Meaning Invariance Constraint
 
-Each packet MAY include:
+STL MUST guarantee:
 
-- `compression_mode` (enum: NONE | DELTA | SYMBOLIC)
-- `compression_ratio`
-- `decompression_instructions`
+No intermediate node may modify packet meaning
 
-Nodes MUST support baseline DELTA compression.
+No transformation may reinterpret, weaken, or reshape semantic content
 
-If the packet cannot be safely decompressed, the node MUST return:
+All updates MUST be lineage-additive only
 
-**STL-DECOMPRESS-FAIL**
+If meaning invariance cannot be guaranteed, the node MUST reject with:
 
-SFC MUST NOT alter meaning-bearing fields (`intent_vector`, `domain_signature`, `policy_constraints`).
+STL-MEANING-VIOLATION
 
+5. Context Scope Hash
 
-## **3.5 Intent Vector Propagation**
+The context_scope_hash ensures that the packet arrives in the same semantic frame in which it was created.
 
-All packets MUST contain an `intent_vector` representing the purpose of the transmission.
+Nodes MUST recompute the hash based on:
 
-Nodes MUST:
+Contextual metadata
 
-1. Validate the intent against local policy.
-2. Compare alignment between `incoming_intent_vector` and `outgoing_vector_space`.
-3. Forward only if alignment score ≥ required threshold.
+Alignment constraints
 
-If threshold fails, return:
+Ethical routing conditions
 
-**STL-INTENT-DENIED**
+Node-local semantic environment
 
-If a node modifies the vector (allowed only with permission flags), it MUST document the mutation in `intent_lineage[]`.
+If the recomputed hash differs:
 
+Return: STL-CONTEXT-DIVERGENCE
 
-## **3.6 Domain Boundary Enforcement**
+6. Lineage Chain Rules
 
-When crossing domain boundaries (e.g., org-to-org or safety boundary transitions), nodes MUST enforce:
+The lineage chain is an immutable, append-only structure containing the full hop history.
 
-- Permissioned context reduction
-- Domain-specific sanitization
-- Policy-aware semantic downgrading (if required)
+Rules:
 
-Cross-domain packets MUST include:
+A node MUST append a new lineage entry on every hop
 
-- `boundary_id`
-- `sanitization_profile`
-- `permissions_map`
+A node MUST NOT edit or remove prior entries
 
-If a packet violates boundary constraints:
+Lineage MUST be cryptographically verifiable
 
-**STL-BOUNDARY-REJECT**
+Any break in lineage MUST result in packet rejection
 
+Lineage violations SHOULD trigger automated trust-score reductions for the responsible node.
 
-## **3.7 Temporal Routing Constraints**
+7. Ethical Transport Requirements
 
-All packets MUST include:
+STL enforces ethical routing to ensure transport aligns with the E-IP ethical constraints.
 
-- `ttl_cycles`
-- `timestamp_created`
-- `temporal_validity_window`
+Nodes MUST validate:
 
-Nodes MUST decrement `ttl_cycles` at each hop.
+No prohibited destination
 
-Expired packets MUST be dropped with:
+No extraction of meaning for unintended use
 
-**STL-TTL-EXPIRED**
+No coercive or exploitative intermediaries
 
-Packets with invalid or manipulated timestamps MUST be rejected with:
+No routing via unverified subsemantic processors
 
-**STL-TIME-INTEGRITY-FAIL**
+Violations MUST return:
 
+STL-ETHICAL-ROUTE-BLOCKED
 
-## **3.8 Causal Ordering Preservation**
+8. Transport Signature
 
-STL provides causal ordering guarantees for sequences tagged with:
+Every STL-enabled node MUST apply its transport_signature at each hop.
 
-- `causal_group_id`
-- `sequence_index`
-- `causal_hash_chain`
+Signatures MUST validate:
 
-Nodes MUST ensure:
+Node identity
 
-- No sequence is delivered out of order.
-- No causal link is broken.
-- Missing packets return:
+Hop authenticity
 
-**STL-CAUSAL-GAP**
+Semantic computation accuracy
 
-Reordered packets return:
+Ethical compliance
 
-**STL-CAUSAL-VIOLATION**
+Invalid signatures MUST result in:
 
-
-## **3.9 Policy Constraint Evaluation (PCE)**
-
-Before forwarding, each node MUST evaluate:
-
-- `safety_policy`
-- `ethics_policy`
-- `usage_policy`
-- `data-access-policy`
-
-Policy evaluation output MUST include:
-
-- `policy_pass` (bool)
-- `policy_reason_code`
-- `effective_permissions[]`
-
-If policy fails, node returns:
-
-**STL-POLICY-FAIL**
-
-Nodes MUST NOT forward packets with ambiguous or missing policies.
-
-
-## **3.10 Packet Transformation Rules (PTR)**
-
-Nodes MAY transform packets only if:
-
-- Transformation flag is present (`allow_transform = true`)
-- The transformation type is authorized:
-  - NORMALIZE
-  - REDACT
-  - EXPAND
-  - SYMBOLIC-REWRITE
-
-All transformations MUST be appended to:
-
-`transform_history[]`
-
-Unauthorized transforms return:
-
-**STL-TRANSFORM-FORBIDDEN**
-
-
-## **3.11 State Synchronization Requirements**
-
-Nodes participating in STL MUST maintain a synchronized operational state including:
-
-- `trust_level`
-- `policy_version`
-- `compression_profile`
-- `domain_context`
-- `routing_capabilities`
-
-Nodes MUST sync state with neighbors using:
-
-`STATE-SYNC-REQ`  
-`STATE-SYNC-ACK`
-
-If sync fails or versions mismatch:
-
-**STL-STATE-DIVERGENCE**
-
-Nodes MUST NOT forward packets while in divergent state.
-
-
-# **4. Security Model**
-
-## **4.1 Threat Model Assumptions**
-
-STL assumes adversaries may attempt:
-
-- Semantic tampering
-- Policy bypass
-- Intent falsification
-- Man-in-the-middle lineage alterations
-- Domain boundary evasion
-
-STL does NOT assume:
-
-- Trusted intermediaries  
-- Secure underlying networks  
-- Homogeneous node policies  
-
-
-## **4.2 Cryptographic Requirements**
-
-All STL nodes MUST support:
-
-- SHA3-based hashing
-- Ed25519 signatures
-- HKDF for key derivation
-- Post-quantum optional extensions (CRYSTALS-Dilithium)
-
-Every packet MUST be cryptographically signed.
-
-Signature failures return:
-
-**STL-SIGNATURE-INVALID**
-
-
-## **4.3 Lineage Ledger Integrity**
-
-The lineage ledger MUST be:
-
-- Append-only  
-- Cryptographically verifiable  
-- Tamper-evident  
-
-If ledger verification fails:
-
-**STL-LINEAGE-CORRUPT**
-
-
-# **5. Node Behavior**
-
-## **5.1 Minimal Requirements**
-
-Nodes MUST:
-
-- Validate semantic and cryptographic integrity
-- Enforce policies
-- Maintain causal and temporal ordering
-- Log lineage
-- Apply domain constraints
-
-Failure to meet requirements:
-
-**STL-NODE-NONCOMPLIANT**
-
-
-## **5.2 Optional Capabilities**
-
-Nodes MAY support:
-
-- Predictive routing
-- Semantic mutation services
-- Domain mediation
-- High-capacity compression
-
-Optional capabilities MUST be declared in `NODE-CAPABILITIES`.
-
-
-## **5.3 Error Handling Protocol**
-
-Upon error, nodes MUST:
-
-1. Halt forwarding
-2. Emit error code
-3. Log lineage snapshot
-4. Optionally suggest corrective metadata
-
-
-# **6. Routing Architecture**
-
-## **6.1 Semantic Routing Decision (SRD)**
-
-Routing MUST consider:
-
-- Intent similarity
-- Domain compatibility
-- Policy alignment
-- Trust levels
-- Contextual vector proximity
-
-
-## **6.2 Routing Table Structure**
-
-Mandatory fields:
-
-- `node_id`
-- `trust_score`
-- `domain_signature`
-- `capabilities[]`
-- `policy_version`
-
-
-## **6.3 Routing Failure Conditions**
-
-Return:
-
-- **STL-NO-ROUTE**
-- **STL-DOMAIN-BLOCK**
-- **STL-POLICY-FAIL**
-- **STL-TRUST-LOW**
-
-
-# **7. Layer Specifications**
-
-## **7.1 L0: Physical / Transport Layer**
-
-No STL modifications required. STL operates above transport protocols.
-
-
-## **7.2 L1: Semantic Header Layer**
-
-Mandatory header fields:
-
-- `intent_vector`
-- `domain_signature`
-- `context_scope_hash`
-- `semantic_checksum`
-
-
-## **7.3 L2: Policy Layer**
-
-Applies safety, ethics, and governance rules to payload.
-
-
-## **7.4 L3: Routing Layer**
-
-Determines next hop based on semantic similarity and domain constraints.
-
-
-## **7.5 L4: Lineage Layer**
-
-Builds immutable provenance.
-
-
-# **8. Error Codes**
-
-STL-CHECKSUM-MISMATCH
-STL-DECOMPRESS-FAIL
-STL-INTENT-DENIED
-STL-BOUNDARY-REJECT
-STL-TTL-EXPIRED
-STL-TIME-INTEGRITY-FAIL
-STL-CAUSAL-GAP
-STL-CAUSAL-VIOLATION
-STL-POLICY-FAIL
-STL-TRANSFORM-FORBIDDEN
-STL-STATE-DIVERGENCE
 STL-SIGNATURE-INVALID
-STL-LINEAGE-CORRUPT
-STL-NODE-NONCOMPLIANT
-STL-NO-ROUTE
-STL-DOMAIN-BLOCK
-STL-TRUST-LOW
 
+9. Error Codes
+Code	Description	Severity
+STL-CHECKSUM-MISMATCH	Semantic checksum mismatch	Hard Fail
+STL-CONTEXT-DIVERGENCE	Context scope hash mismatch	Hard Fail
+STL-MEANING-VIOLATION	Meaning invariance broken	Hard Fail
+STL-ETHICAL-ROUTE-BLOCKED	Routing violates ethical rules	Hard Fail
+STL-SIGNATURE-INVALID	Transport signature invalid	Hard Fail
+STL-LINEAGE-BREAK	Lineage chain corrupted	Hard Fail
 
-# **9. Interoperability Requirements**
+Nodes MUST NOT forward packets after any error.
 
-Nodes MUST support:
+10. Compliance Matrix
+Requirement	Mandatory	Section
+Semantic Continuity Guarantee	Yes	3.3
+Meaning Invariance	Yes	4
+Context Scope Hash Recompute	Yes	5
+Lineage Chain Append	Yes	6
+Ethical Transport	Yes	7
+Transport Signature	Yes	8
 
-- Backward-compatible header parsing
-- Version negotiation
-- Policy convergence
-- Cross-domain sanitization
+Nodes failing any mandatory requirement MUST NOT advertise STL compliance.
 
+11. Security Considerations
 
-# **10. Compliance Testing**
+STL enhances security by ensuring:
 
-Nodes MUST pass:
+No adversary can hijack meaning
 
-- Header validation tests
-- Policy enforcement tests
-- Causal ordering tests
-- Boundary-crossing tests
-- Ledger integrity checks
+No tampering with lineage
 
+No semantic drift
 
-# **11. Future Extensions**
+No exploitation during routing
 
-Planned extensions include:
+All hops are cryptographically authenticated
 
-- Post-quantum by default
-- Adaptive semantic routing
-- Multi-domain trust meshes
-- Federated lineage aggregation
-- Symbolic compression codecs
+Ethical transport cannot be bypassed
+
+STL does not replace underlying cryptographic layers but augments them with semantic safeguards.
