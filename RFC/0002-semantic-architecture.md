@@ -100,77 +100,71 @@ The Semantic Transport Layer (STL) provides the mechanisms for packaging, transm
 ### 5.2 STL Envelope Format
 
 Each semantic packet MUST contain the following fields:
+
+```
 stl_packet {
-header {
-version: uint8
-packet_id: uuid4
-timestamp: int64
-sender_id: string
-recipient_id: string
-semantic_model_version: string
+  header {
+    version: uint8
+    packet_id: uuid4
+    timestamp: int64
+    sender_id: string
+    recipient_id: string
+    semantic_model_version: string
+  }
+  payload {
+    semantic_object: bytes
+    recursion_depth: uint8
+    alignment_hash: sha256
+    meaning_signature: sha256
+  }
+  metadata {
+    lineage_chain: array<sha256>
+    semantic_flags: array<string>
+    policy_tags: array<string>
+  }
+  security {
+    signature: ed25519_sig
+    key_id: string
+  }
 }
-payload {
-semantic_object: bytes
-recursion_depth: uint8
-alignment_hash: sha256
-meaning_signature: sha256
-}
-metadata {
-lineage_chain: array<sha256>
-semantic_flags: array<string>
-policy_tags: array<string>
-}
-security {
-signature: ed25519_sig
-key_id: string
-}
-}
+```
 
 ### 5.3 STL Processing Rules
 
-1. **Timestamp Validation**  
+1. Timestamp validation:  
    `timestamp_now - packet_timestamp <= max_skew_ms`
 
-2. **Alignment Hash Validation**  
-   Recompute `alignment_hash` from the semantic object.  
-   If mismatch → reject the packet.
+2. Alignment hash validation: reject if mismatched.
 
-3. **Meaning Signature Verification**  
-   Compare semantic hash + recursion structure.  
-   If mismatch → reject.
+3. Meaning signature verification: reject if mismatched.
 
-4. **Lineage Chain Update**  
-   Append `sha256(packet_id || alignment_hash)` before forwarding.
+4. Lineage chain update:  
+   Append `sha256(packet_id || alignment_hash)`.
 
-5. **Policy Enforcement**  
-   All `policy_tags` MUST be evaluated against the ABL ruleset.
+5. Policy enforcement: evaluate `policy_tags` against ABL rules.
 
-6. **Recursion Depth Check**  
-   If `recursion_depth > max_recursion_depth`:  
-   - reject OR  
-   - truncate depending on negotiated policy.
+6. Recursion depth check:
+   If `recursion_depth > max_recursion_depth` → reject or truncate.
 
 ### 5.4 STL Interface
 
-The STL interface defines the functions any compliant implementation MUST provide.
-
 #### 5.4.1 `stl_encode()`
 
+```
 function stl_encode(semantic_object, context) -> stl_packet
-
-Requirements:
+```
 
 - Compute alignment hash.
 - Compute meaning signature.
 - Initialize lineage entry.
-- Validate semantic object against the ABL.
+- Validate semantic object against ABL.
 - Attach security signature.
 
 #### 5.4.2 `stl_decode()`
 
+```
 function stl_decode(stl_packet) -> semantic_object
-
-Requirements:
+```
 
 - Verify signature.
 - Validate alignment hash.
@@ -180,20 +174,22 @@ Requirements:
 
 #### 5.4.3 `stl_route()`
 
+```
 function stl_route(stl_packet, routing_context) -> route_decision
-
-Requirements:
+```
 
 - Inspect policy tags.
 - Apply governance and compliance filters.
 - Ensure semantic domain compatibility.
-- Prevent cross-domain leakage unless explicitly permitted.
+- Prevent cross-domain leakage.
 
 #### 5.4.4 `stl_verify()`
 
+```
 function stl_verify(stl_packet) -> verification_report
+```
 
-Verification report fields:
+Report fields:
 
 - `signature_valid: bool`
 - `alignment_intact: bool`
@@ -205,144 +201,112 @@ Verification report fields:
 
 ## 6. ABL Compliance Rules
 
-All systems implementing the E-IP MUST satisfy the following ABL rules to ensure alignment and semantic integrity.
-
 ### 6.1 Meaning Preservation
-
-- No transformation may modify semantic intent.  
-- Compression MUST NOT alter semantic symbols or their relational structure.
+- No transformation may modify semantic intent.
+- Compression MUST NOT alter symbolic structure.
 
 ### 6.2 Alignment Consistency
-
-- Alignment hashes MUST match the expected model for the declared semantic model version.
-- Any transformation MUST recompute alignment metadata.
+- Alignment hashes MUST match expected schema.
+- Transformations MUST recompute alignment metadata.
 
 ### 6.3 Recursion Safety
-
-- Recursive symbolic structures MUST declare recursion depth.
-- Depth MUST NOT exceed the protocol’s `max_recursion_depth`.
+- Recursive structures MUST declare recursion depth.
+- Depth MUST NOT exceed protocol limit.
 
 ### 6.4 Ethical Constraints
-
-- Implementations MUST prevent semantic manipulation that violates ethical boundaries defined in RFC-0001.
-- Any violation MUST be logged and surfaced to governance hooks.
+- Systems MUST prevent semantic manipulation outside safe bounds.
+- Violations MUST be logged and surfaced.
 
 ---
 
 ## 7. Alignment Constraints
 
-The ABL establishes alignment constraints that guarantee harmonized interpretation of semantic objects.
-
 ### 7.1 Structural Alignment
-
-- Semantic objects MUST match their schema.  
-- Missing or additional fields MUST cause validation failure.
+- Semantic objects MUST match their schemas.
 
 ### 7.2 Symbolic Recursion Alignment
-
-- Recursive references MUST be well-formed.  
-- Cycles MUST be explicitly marked using `cycle_ref`.
+- Recursion MUST be well-formed with explicit cycles.
 
 ### 7.3 Domain Alignment
-
-- Semantic objects MUST declare a domain (e.g., `identity`, `governance`, `safety`).  
-- Cross-domain interaction MUST be explicitly permitted.
+- Objects MUST declare a domain.
+- Cross-domain use MUST be explicitly permitted.
 
 ### 7.4 Meaning Gradient Stability
-
-- Meaning gradients MUST be computed and logged.  
-- Abrupt or inconsistent gradients MUST raise a semantic anomaly alert.
+- Large meaning gradients MUST trigger anomaly alerts.
 
 ---
 
 ## 8. Minimal Requirements for Any Implementation
 
-Minimum required capabilities for any E-IP implementation:
-
-### 8.1 Core Requirements
-
-- STL packet encoding/decoding.
-- ABL validation.
-- Alignment hashing.
-- Meaning signature computation.
-- Recursion analysis.
+### 8.1 Core Capabilities
+- STL encode/decode
+- ABL validation
+- Alignment hashing
+- Meaning signature
+- Recursion analysis
 
 ### 8.2 Logging Requirements
+- Lineage logs
+- Validation logs
+- Policy evaluation logs
+- Anomaly logs
 
-- Lineage logs.
-- Validation logs.
-- Policy evaluation logs.
-- Anomaly reports.
-
-### 8.3 Interoperability Requirements
-
-- Support for semantic model upgrades.
-- Backward compatibility for at least one previous semantic model version.
-- Explicit version negotiation.
+### 8.3 Interoperability
+- Semantic model versioning
+- Backward compatibility
+- Version negotiation
 
 ---
 
 ## 9. Security Considerations
 
 ### 9.1 Integrity
-
 - All critical fields MUST be signed and verified.
-- Misaligned or altered packets MUST be rejected.
 
 ### 9.2 Confidentiality
-
-- Redactions MUST create a verifiable lineage entry.
-- Redacted content MUST include a `redaction_proof`.
+- Redactions MUST generate lineage entries.
+- Redaction proofs MUST be included.
 
 ### 9.3 Freshness / Anti-Replay
 
 Valid if:
 
+```
 packet_timestamp + max_skew >= now
+```
 
 Else → replay attack.
 
 ### 9.4 DoS Protections
-
 - Enforce rate limits.
 - Reject malformed packets.
-- Apply exponential backoff on repeated failures.
+- Exponential backoff for repeated failures.
 
 ### 9.5 Semantic Adversarial Defense
-
-- Multi-model checkpoints MUST detect semantic perturbations.
-- Compare meaning signatures across multiple models.
-- Flag divergence > threshold.
+- Detect meaning perturbations across models.
+- Flag divergence beyond threshold.
 
 ---
 
 ## 10. Governance Hooks
 
-E-IP MUST include explicit governance touchpoints that allow auditing, policy enforcement, and alignment verification.
-
 ### 10.1 Governance Events
+- Packet rejection
+- Policy violation
+- Recursion limit breach
+- Anomaly detection
+- Cross-domain access attempts
 
-Systems MUST emit events for:
+### 10.2 Governance API
 
-- Packet rejection (semantic, alignment, security).
-- Policy violations.
-- Recursion limit breaches.
-- Anomaly detection.
-- Cross-domain access attempts.
-
-### 10.2 Governance API Requirements
-
+```
 GET /governance/lineage/{packet_id}
 GET /governance/violations
 POST /governance/policy/update
 POST /governance/semantic-model/register
+```
 
 ### 10.3 Audit Requirements
-
-- All lineage entries MUST be cryptographically anchored.
+- Lineage entries MUST be cryptographically anchored.
 - Policy decisions MUST be reproducible.
-- Semantic model updates MUST include justification and diff logs.
-
----
-
-
+- Semantic model updates MUST include diffs and justification.
