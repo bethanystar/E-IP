@@ -85,228 +85,79 @@ Every packet entering E-IP must carry an `alignment_envelope` containing:
   },
   "risk_score": 0.0
 }
-## 5. Semantic Transport Layer (STL)
+## 5. Semantic Transport Layer (STL) Interface
 
-The Semantic Transport Layer (STL) provides the mechanisms for packaging, transmitting, validating, and interpreting semantic payloads inside the E-IP. STL ensures that meaning is preserved across systems, contexts, and implementations.
+The ABL hands validated packets to the STL with the following guarantees:
 
-### 5.1 STL Responsibilities
+- **alignment_status** = "valid"  
+- **sgl_version** (from RFC-0003 L0) is attached  
+- **Lineage** is complete and append-only  
+- **Risk flags** are present and immutable  
+- **Ethical flags** are preserved  
 
-- Encapsulate semantic objects in transport-safe envelopes.
-- Provide consistent serialization and deserialization.
-- Preserve semantic lineage and semantic integrity metadata.
-- Enforce ABL alignment constraints during transmission.
-- Provide hooks for governance, audits, and compliance.
+The STL is responsible for routing and lineage-preserving transport but **cannot override ABL judgments**.
 
-### 5.2 STL Envelope Format
+## 6. Compliance Rules
 
-Each semantic packet MUST contain the following fields:
+For an implementation to be ABL-compliant, it must:
 
-```
-stl_packet {
-  header {
-    version: uint8
-    packet_id: uuid4
-    timestamp: int64
-    sender_id: string
-    recipient_id: string
-    semantic_model_version: string
-  }
-  payload {
-    semantic_object: bytes
-    recursion_depth: uint8
-    alignment_hash: sha256
-    meaning_signature: sha256
-  }
-  metadata {
-    lineage_chain: array<sha256>
-    semantic_flags: array<string>
-    policy_tags: array<string>
-  }
-  security {
-    signature: ed25519_sig
-    key_id: string
-  }
-}
-```
+### **MUST**
+- Reject any packet without a valid alignment envelope  
+- Recompute semantic checksums on modification  
+- Preserve all lineage entries  
+- Enforce ethical flags before delivery  
+- Log alignment decisions with timestamps and signer identity  
 
-### 5.3 STL Processing Rules
+### **SHOULD**
+- Provide user-friendly explanations for alignment failures  
+- Implement semantic drift detection  
+- Support pluggable verification engines  
 
-1. Timestamp validation:  
-   `timestamp_now - packet_timestamp <= max_skew_ms`
+### **MAY**
+- Cache alignment results with TTL  
+- Delegate certain validations to hardware-backed modules  
 
-2. Alignment hash validation: reject if mismatched.
+## 7. Alignment Constraints (Normative)
 
-3. Meaning signature verification: reject if mismatched.
+The following rules define valid alignment:
 
-4. Lineage chain update:  
-   Append `sha256(packet_id || alignment_hash)`.
+- **Intent Clarity:** intent must be explicit and mapped to canonical ontology terms  
+- **Context Stability:** switching context scopes requires checksum recalculation  
+- **Ethical Integrity:** ethical flags determine permissible actions  
+- **Non-Silent Mutation:** any transformation must append lineage  
+- **Semantic Fidelity:** checksums must match the meaning_graph  
 
-5. Policy enforcement: evaluate `policy_tags` against ABL rules.
+A packet failing any of these criteria **must be rejected**.
 
-6. Recursion depth check:
-   If `recursion_depth > max_recursion_depth` → reject or truncate.
+## 8. Minimal Requirements for Implementation
 
-### 5.4 STL Interface
+Any conforming implementation must include:
 
-#### 5.4.1 `stl_encode()`
+- **ABL validator module**  
+- **Semantic checksum generator**  
+- **Lineage recorder**  
+- **Ethical flag interpreter**  
+- **Drift detector** (baseline version)  
+- **Audit log** with append-only guarantees  
 
-```
-function stl_encode(semantic_object, context) -> stl_packet
-```
-
-- Compute alignment hash.
-- Compute meaning signature.
-- Initialize lineage entry.
-- Validate semantic object against ABL.
-- Attach security signature.
-
-#### 5.4.2 `stl_decode()`
-
-```
-function stl_decode(stl_packet) -> semantic_object
-```
-
-- Verify signature.
-- Validate alignment hash.
-- Validate meaning signature.
-- Check timestamp and freshness.
-- Enforce recursion and alignment limits.
-
-#### 5.4.3 `stl_route()`
-
-```
-function stl_route(stl_packet, routing_context) -> route_decision
-```
-
-- Inspect policy tags.
-- Apply governance and compliance filters.
-- Ensure semantic domain compatibility.
-- Prevent cross-domain leakage.
-
-#### 5.4.4 `stl_verify()`
-
-```
-function stl_verify(stl_packet) -> verification_report
-```
-
-Report fields:
-
-- `signature_valid: bool`
-- `alignment_intact: bool`
-- `meaning_intact: bool`
-- `lineage_valid: bool`
-- `policy_compliant: bool`
-
----
-
-## 6. ABL Compliance Rules
-
-### 6.1 Meaning Preservation
-- No transformation may modify semantic intent.
-- Compression MUST NOT alter symbolic structure.
-
-### 6.2 Alignment Consistency
-- Alignment hashes MUST match expected schema.
-- Transformations MUST recompute alignment metadata.
-
-### 6.3 Recursion Safety
-- Recursive structures MUST declare recursion depth.
-- Depth MUST NOT exceed protocol limit.
-
-### 6.4 Ethical Constraints
-- Systems MUST prevent semantic manipulation outside safe bounds.
-- Violations MUST be logged and surfaced.
-
----
-
-## 7. Alignment Constraints
-
-### 7.1 Structural Alignment
-- Semantic objects MUST match their schemas.
-
-### 7.2 Symbolic Recursion Alignment
-- Recursion MUST be well-formed with explicit cycles.
-
-### 7.3 Domain Alignment
-- Objects MUST declare a domain.
-- Cross-domain use MUST be explicitly permitted.
-
-### 7.4 Meaning Gradient Stability
-- Large meaning gradients MUST trigger anomaly alerts.
-
----
-
-## 8. Minimal Requirements for Any Implementation
-
-### 8.1 Core Capabilities
-- STL encode/decode
-- ABL validation
-- Alignment hashing
-- Meaning signature
-- Recursion analysis
-
-### 8.2 Logging Requirements
-- Lineage logs
-- Validation logs
-- Policy evaluation logs
-- Anomaly logs
-
-### 8.3 Interoperability
-- Semantic model versioning
-- Backward compatibility
-- Version negotiation
-
----
+Implementations that omit one of the above **cannot claim E-IP compliance**.
 
 ## 9. Security Considerations
 
-### 9.1 Integrity
-- All critical fields MUST be signed and verified.
-
-### 9.2 Confidentiality
-- Redactions MUST generate lineage entries.
-- Redaction proofs MUST be included.
-
-### 9.3 Freshness / Anti-Replay
-
-Valid if:
-
-```
-packet_timestamp + max_skew >= now
-```
-
-Else → replay attack.
-
-### 9.4 DoS Protections
-- Enforce rate limits.
-- Reject malformed packets.
-- Exponential backoff for repeated failures.
-
-### 9.5 Semantic Adversarial Defense
-- Detect meaning perturbations across models.
-- Flag divergence beyond threshold.
-
----
+- **Tampering:** alignment envelopes must be signed  
+- **Privacy:** sensitive fields must support redaction metadata  
+- **Replay Attacks:** lineage timestamps must be validated  
+- **Spoofing:** ethical flags cannot be downgraded without explicit governance approval
 
 ## 10. Governance Hooks
 
-### 10.1 Governance Events
-- Packet rejection
-- Policy violation
-- Recursion limit breach
-- Anomaly detection
-- Cross-domain access attempts
+The ABL is the primary enforcement mechanism for the governance framework defined in **RFC-0001**.  
+Governance modules may:
 
-### 10.2 Governance API
+- Override routing decisions  
+- Require human review  
+- Flag high-risk intents  
+- Update ethical rulesets  
 
-```
-GET /governance/lineage/{packet_id}
-GET /governance/violations
-POST /governance/policy/update
-POST /governance/semantic-model/register
-```
+ABL must expose its decisions to the governance layer via **standardized events**.
 
-### 10.3 Audit Requirements
-- Lineage entries MUST be cryptographically anchored.
-- Policy decisions MUST be reproducible.
-- Semantic model updates MUST include diffs and justification.
