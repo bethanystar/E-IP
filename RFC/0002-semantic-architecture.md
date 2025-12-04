@@ -85,6 +85,7 @@ Every packet entering E-IP must carry an `alignment_envelope` containing:
   },
   "risk_score": 0.0
 }
+
 ---
 
 ## 5. Semantic Transport Layer (STL)
