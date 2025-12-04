@@ -1,5 +1,5 @@
 # RFC-0002: Alignment Boundary Layer (ABL)
-**Status:** Draft  
+**Status:** Proposed Standard 
 **Category:** Core Protocol  
 **E-IP Layer:** Semantic Enforcement Layer  
 
