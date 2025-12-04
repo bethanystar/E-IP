@@ -86,6 +86,7 @@ Every packet entering E-IP must carry an `alignment_envelope` containing:
   "risk_score": 0.0
 }
 ---
+
 ## 5. Semantic Transport Layer (STL)
 
 The Semantic Transport Layer (STL) provides transport, routing, and integrity guarantees for semantic packets validated by the ABL.
