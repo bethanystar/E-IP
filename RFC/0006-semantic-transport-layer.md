@@ -56,8 +56,6 @@ A session represents a semantic conversation channel with:
 
 Sessions enable stateful continuity of context across multiple transmissions.
 
----
-
 ### **3.2 STL Hop**
 
 A “hop” is a single transfer between nodes.  
