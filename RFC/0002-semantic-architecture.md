@@ -85,112 +85,291 @@ Every packet entering E-IP must carry an `alignment_envelope` containing:
   },
   "risk_score": 0.0
 }
-The envelope is cryptographically signed whenever possible.
-5. Semantic Transport Layer (STL) Interface
+## 5. Semantic Transport Layer (STL) — Detailed Specification
 
-The ABL hands validated packets to the STL with the following guarantees:
+The STL ensures that meaning-bearing packets move between nodes while preserving semantic context, lineage, and alignment metadata. It operates on top of conventional transports (e.g., HTTPS/TLS) but prior to application-level interpretation.
 
-alignment_status = "valid"
+### 5.1 Packet Lifecycle
+1. **Construct** — Sender assembles `eip_packet` with `alignment_envelope` and `content`.
+2. **Handshake** — Optional Semantic Handshake negotiates `alignment_level` and `recursion_constraints`.
+3. **Validate (Local ABL)** — Sender local ABL runs preflight checks; rejects or annotates packet.
+4. **Transmit** — Packet sent over chosen transport channel with integrity protections.
+5. **Validate (Remote ABL/STL)** — Receiving node validates signatures, `semantic_checksum`, and lineage.
+6. **Route / Deliver** — If validated and policy permits, forward to ERL / AIL; otherwise, apply slow-path.
 
-sgl_version (from RFC-0003 L0) is attached
+### 5.2 Machine-Readable Packet Example (JSON)
+```json
+{
+  "header": {
+    "version": "EIP/1.0",
+    "sender_id": "did:example:alice",
+    "timestamp": "2025-12-04T15:00:00Z",
+    "sgl_version": "SGL-2025-01",
+    "stl_session": "uuid-1234"
+  },
+  "alignment_envelope": {
+    "intent": "request-data",
+    "context_scope": "user-consent",
+    "semantic_checksum": "sha256:meaninghashvalue",
+    "ethical_flags": ["consent_required"],
+    "lineage": { "parent_ids": ["eip-abc-0001"] },
+    "risk_score": 0.12,
+    "signature": "sig:sender"
+  },
+  "content": {
+    "type": "application/json",
+    "body": { "query": "profile", "user_id": "user-123" }
+  },
+  "integrity_proof": {
+    "model_signature": "sig:model",
+    "alignment_proof": "sig:abl-verifier"
+  }
+}
+## 5.3 Session & Route Metadata
 
-Lineage is complete and append-only
+STL sessions and route metadata provide contextual binding for packet exchange and persistent routing constraints. Implementations SHOULD expose session and route metadata in machine-readable form and MUST honor negotiated constraints for the session duration.
 
-Risk flags are present and immutable
+### 5.3.1 Session Fields (recommended)
+stl_session {
+session_id: "uuid",
+established_at: "iso8601",
+initiator_id: "did:",
+responder_id: "did:",
+negotiated_alignment_level: integer, # agreed minimum alignment for this session
+negotiated_recursion_limit: integer,
+ttl_seconds: integer,
+active_routes: [ route_ref ],
+session_signature: "sig:"
+}
 
-Ethical flags are preserved
+### 5.3.2 Route Metadata (per-hop/route)
+route_metadata {
+route_id: "uuid",
+hop_limit: integer,
+preferred_nodes: [ "did:" ],
+required_review: boolean,
+policy_tags: [ "privacy", "high-risk", "consent-required" ],
+route_signature: "sig:"
+}
 
-The STL is responsible for routing and lineage-preserving transport but cannot override ABL judgments.
+### 5.3.3 Session Semantics
+- Negotiated alignment level is a floor: packets with alignment_score below this MUST be rejected.
+- Negotiated recursion_limit bounds accepted recursion_depth values.
+- Sessions are time-limited and require renegotiation after TTL expiration.
+- Preferred nodes are advisory; ERL may override when governance constraints require.
 
-6. Compliance Rules
+---
 
-For an implementation to be ABL-compliant, it must:
+## 5.4 Lineage Semantics
 
-MUST
+Lineage captures the mutational history of a meaning artifact. Lineage is append-only and cryptographically verifiable. Every mutation to content or context must produce a new lineage entry.
 
-Reject any packet without a valid alignment envelope
+### 5.4.1 Lineage Entry Schema
+```json
+{
+  "entry_id": "uuid",
+  "packet_id": "uuid",
+  "node_id": "did:",
+  "timestamp": "iso8601",
+  "prev_checksum": "sha256:meaning",
+  "new_checksum": "sha256:meaning",
+  "mutation_reason": "string",
+  "mutation_type": "annotate|transform|redact|split|merge",
+  "actor_signature": "sig:",
+  "metadata": { "human_review": true, "reviewer_id": "did:" }
+}
+### 5.4.2 Lineage Rules
 
-Recompute semantic checksums on modification
+- Lineage MUST be stored append-only; deletion is forbidden.  
+- Each entry MUST include `prev_checksum` linking to the prior semantic state.  
+- Mutations that alter semantic content MUST include `mutation_reason` and `actor_signature`.  
+- Lineage snapshots referenced in audits MUST be reconstructable from stored entries.  
+- Redactions MUST produce a new lineage entry with `mutation_type: "redact"` and MUST include `redaction_signature`.  
+- Forking (parallel lineage branches) MUST explicitly declare `"mutation_type": "fork"` and reference the originating `entry_id`.  
+- Merges MUST list all contributing lineage branches inside `"merged_from": [entry_id...]`.  
+- Any lineage entry impacting ethical flags MUST include `"flag_change": true` and justification metadata.  
+- Slow-path human reviews MUST add `"human_review": true` and reviewer identifiers.  
 
-Preserve all lineage entries
+---
 
-Enforce ethical flags before delivery
+## 6. Compliance Rules
 
-Log alignment decisions with timestamps and signer identity
+### 6.1 MUST (Normative Requirements)
 
-SHOULD
+- MUST validate `alignment_envelope` for every packet.  
+- MUST compute and verify `semantic_checksum` before consumption.  
+- MUST append a signed lineage entry after each mutation.  
+- MUST reject packets with `alignment_score < MIN_ALIGNMENT_SCORE` unless human override occurs.  
+- MUST log all alignment decisions to Decision Log.  
+- MUST verify all signatures in envelope and lineage.  
+- MUST publish misalignment incidents to governance endpoints.  
+- MUST enforce ethical flags (`consent_required`, `human_oversight`, etc.).  
+- MUST timestamp every decision and mutation event.  
 
-Provide user-friendly explanations for alignment failures
+### 6.2 SHOULD (Strongly Recommended)
 
-Implement semantic drift detection
+- SHOULD generate human-readable rationales for alignment decisions.  
+- SHOULD implement cross-model drift detection.  
+- SHOULD support partial lineage replication for distributed audit.  
+- SHOULD enable caching of validated alignment scores to reduce latency.  
 
-Support pluggable verification engines
+### 6.3 MAY (Optional)
 
-MAY
+- MAY rely on hardware-backed signing modules.  
+- MAY provide compatibility layers for legacy transports.  
+- MAY expose semantic debugging telemetry under restricted access.  
 
-Cache alignment results with TTL
+### 6.4 Failure Handling Table
 
-Delegate certain validations to hardware-backed modules
+FAILURE_MODE	ACTION
+MEANING_SIGNATURE_MISMATCH	Reject packet; log; notify governance.
+RECURSION_OVERFLOW	Reject; return allowed recursion limit.
+MISSING_LINEAGE	Trigger slow-path or reject, depending on policy.
+SIGNATURE_INVALID	Reject; flag sender as potential risk.
+DRIFT_EXCEEDED	Enter slow-path; escalate to governance.
+POLICY_FLAG_VIOLATION	Reject; emit misalignment_alert.
 
-7. Alignment Constraints (Normative)
+---
 
-The following rules define valid alignment:
+## 7. Alignment Constraints
 
-Intent Clarity: intent must be explicit and mapped to canonical ontology terms
+### 7.1 Intent Clarity Constraint
+intent_clarity ∈ [0,1]
+intent_clarity >= 0.60 → fast-path allowed
+intent_clarity < 0.60 → slow-path required
 
-Context Stability: Switching context scopes requires checksum recalculation
+### 7.2 Context Stability Constraint
+- Context shifts MUST be logged in lineage.  
+- Unlogged shifts immediately invalidate the envelope.  
 
-Ethical Integrity: Ethical flags determine permissible actions
+### 7.3 Ethical Flags Constraint
+- If a packet asserts an ethical flag, receiving nodes MUST enforce its semantics.  
+- Missing required evidence (e.g., consent token) → immediate rejection.  
 
-Non-Silent Mutation: Any transformation must append lineage
+### 7.4 Non-Manipulation Constraint
+manipulation_score = Σ unlogged_mutations
+manipulation_score > threshold → governance escalation
 
-Semantic Fidelity: Checksums must match the meaning_graph
+### 7.5 Recursion & Curvature Constraint
+recursion_depth <= negotiated_recursion_limit
+if exceeded → RECURSION_OVERFLOW
 
-A packet failing any of these criteria must be rejected.
+---
 
-8. Minimal Requirements for Implementation
+## 8. Minimal Implementation Requirements
 
-Any conforming implementation must include:
+Implementations claiming E-IP compatibility MUST support:
 
-ABL validator module
+1. **ABL Validator**  
+   - Evaluates alignment envelopes and computes scores.
 
-Semantic checksum generator
+2. **Semantic Checksum Engine**  
+   - Generates canonical semantic graphs and hashes.
 
-Lineage recorder
+3. **Lineage Store (Append-Only)**  
+   - Verifiable, signed, queryable by packet_id.
 
-Ethical flag interpreter
+4. **Decision Log System**  
+   - Structured logs adhering to decisionlog.schema.json.
 
-Drift detector (baseline version)
+5. **Drift Detector**  
+   - Detects divergence from SGL baselines.
 
-Audit log with append-only guarantees
+6. **STL Adapter**  
+   - Handles encapsulation and session negotiation.
 
-Implementations that omit one of the above cannot claim E-IP compliance.
+7. **Governance Reporter**  
+   - Emits misalignment_alert and event logs.
 
-9. Security Considerations
+8. **Crypto Suite**  
+   - Signature verification, key rotation, revocation.
 
-Tampering: Alignment envelopes must be signed
+9. **Documentation + Tests**  
+   - Manifest, modelcard, examples, test suite.
 
-Privacy: Sensitive fields must support redaction metadata
+10. **Configurable Policy Engine**  
+   - Thresholds, flags, depth limits, retention rules.
 
-Replay Attacks: Lineage timestamps must be validated
+---
 
-Spoofing: Ethical flags cannot be downgraded without explicit governance approval
+## 9. Security Considerations
 
-10. Governance Hooks
+### 9.1 Integrity
+- All critical fields MUST be signed and verified.  
 
-The ABL is the primary enforcement mechanism for the governance framework defined in RFC-0001.
-Governance modules may:
+### 9.2 Confidentiality
+- Redactions MUST generate a lineage entry.  
+- Redacted content MUST provide `redaction_proof`.  
 
-Override routing decisions
+### 9.3 Freshness / Anti-Replay
+packet_timestamp + max_skew >= now → valid
+else → replay_attack
 
-Require human review
+### 9.4 DoS Protections
+- Rate-limit misaligned or malformed packets.  
+- Require exponential backoff for repeated failures.  
 
-Flag high-risk intents
+### 9.5 Semantic Adversarial Defense
+- Detect paraphrase attacks via multi-model checkpoints.  
+- Monitor for abrupt semantic drift signals.  
 
-Update ethical rulesets
+### 9.6 Key Compromise Response
+- Immediate revocation event.  
+- Governance notification.  
+- Forced re-handshake for all active sessions.
 
-ABL must expose its decisions to the governance layer via standardized events.
+---
 
-11. Changelog
+## 10. Governance Hooks
 
-2025-12-03: Initial draft.
+### 10.1 Event Schemas
+
+**alignment_decision**
+```json
+{
+  "packet_id": "uuid",
+  "decision": "accept|reject|slow-path",
+  "score": 0.73,
+  "reason": "string",
+  "signer": "did:"
+}
+misalignment_alert
+{
+  "packet_id": "uuid",
+  "type": "checksum_mismatch|manipulation|missing_lineage",
+  "risk_score": 0.92,
+  "sender": "did:"
+}
+lineage_append
+{
+  "packet_id": "uuid",
+  "entry_id": "uuid",
+  "new_checksum": "sha256:",
+  "actor_id": "did:"
+}
+security_incident
+{
+  "incident_id": "uuid",
+  "severity": "critical|high|medium|low",
+  "summary": "string",
+  "actions": ["revoke_key", "freeze_node"]
+}
+### 10.2 Governance API
+
+GET  /gov/events?from=timestamp&limit=n
+POST /gov/decisions         { decision entry }
+GET  /gov/packets/{id}/lineage
+POST /gov/policy-update     { policy_doc, signature }
+
+### 10.3 Slow-Path Enforcement
+
+When risk_score >= SLOW_PATH_THRESHOLD, MUST emit slow_path_request.
+
+Human review MUST attach justification entry into lineage.
+
+###10.4 Policy Distribution
+
+Policies MUST be signed and versioned.
+
+Nodes MUST verify integrity before applying.
+
