@@ -171,6 +171,9 @@ Every ECA run must output the following object:
   "ontology_version": "2025.3",
   "timestamp": "2025-01-01T12:00:00Z"
 }
+```
+---
+
 ## **9. Safety Limits**
 
 The Ethical Consensus Algorithm (ECA) must enforce non-bypassable safety limits that prevent unethical, misaligned, or semantically-corrupted outputs from propagating through the E-IP stack.
