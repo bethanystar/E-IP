@@ -1,32 +1,22 @@
-RFC-0004: E-IP Packet Specification
-
-Category: Standards Track
-Status: Proposed Standard
+# RFC-0004: E-IP Packet Specification
+Category: Standards Track  
+Status: Proposed Standard  
 Year: 2025
 
-1. Overview
-
-This RFC defines the official E-IP packet structure, required schemas, and validation flow.
-Every object transmitted through the E-IP protocol must comply with these structural rules before entering the Alignment Boundary Layer (ABL) or Semantic Transport Layer (STL).
+## 1. Overview
+This RFC defines the official E-IP packet structure, required schemas, and the validation flow. Every object transmitted through the E-IP protocol must comply with these structural rules before entering the Alignment Boundary Layer (ABL) or the Semantic Transport Layer (STL).
 
 This specification describes:
 
-Packet header schema
+- Packet header schema  
+- Packet body schema  
+- Alignment envelope schema  
+- Semantic checksum rules  
+- Ethical flag rules  
+- Validation pipeline  
+- Error and rejection codes  
 
-Packet body schema
-
-Alignment envelope schema
-
-Semantic checksum rules
-
-Ethical flag rules
-
-Validation pipeline
-
-Error and rejection codes
-
-2. Packet Structure
-
+## 2. Packet Structure
 Every packet in E-IP has two parts:
 EIPPacket {
 header: EIPHeader
