@@ -85,79 +85,36 @@ Every packet entering E-IP must carry an `alignment_envelope` containing:
   },
   "risk_score": 0.0
 }
-## 5. Semantic Transport Layer (STL) Interface
+---
+## 5. Semantic Transport Layer (STL)
+
+The Semantic Transport Layer (STL) provides transport, routing, and integrity guarantees for semantic packets validated by the ABL.
 
 The ABL hands validated packets to the STL with the following guarantees:
 
-- **alignment_status** = "valid"  
-- **sgl_version** (from RFC-0003 L0) is attached  
-- **Lineage** is complete and append-only  
-- **Risk flags** are present and immutable  
-- **Ethical flags** are preserved  
+- **alignment_status** = "valid"
+- **sgl_version** (from RFC-0003 L0) is attached
+- **lineage** is complete and append-only
+- **risk_flags** are present and immutable
+- **ethical_flags** are preserved
 
 The STL is responsible for routing and lineage-preserving transport but **cannot override ABL judgments**.
 
-## 6. Compliance Rules
+---
 
-For an implementation to be ABL-compliant, it must:
+### 5.1 STL Responsibilities
 
-### **MUST**
-- Reject any packet without a valid alignment envelope  
-- Recompute semantic checksums on modification  
-- Preserve all lineage entries  
-- Enforce ethical flags before delivery  
-- Log alignment decisions with timestamps and signer identity  
+- Encapsulate semantic objects in transport-safe envelopes  
+- Provide consistent serialization and deserialization  
+- Preserve semantic lineage and integrity metadata  
+- Enforce ABL alignment constraints during transmission  
+- Provide hooks for governance, audits, and compliance  
 
-### **SHOULD**
-- Provide user-friendly explanations for alignment failures  
-- Implement semantic drift detection  
-- Support pluggable verification engines  
+---
 
-### **MAY**
-- Cache alignment results with TTL  
-- Delegate certain validations to hardware-backed modules  
+### 5.2 STL Envelope Format
 
-## 7. Alignment Constraints (Normative)
+Each semantic packet MUST contain the following fields:
 
-The following rules define valid alignment:
 
-- **Intent Clarity:** intent must be explicit and mapped to canonical ontology terms  
-- **Context Stability:** switching context scopes requires checksum recalculation  
-- **Ethical Integrity:** ethical flags determine permissible actions  
-- **Non-Silent Mutation:** any transformation must append lineage  
-- **Semantic Fidelity:** checksums must match the meaning_graph  
-
-A packet failing any of these criteria **must be rejected**.
-
-## 8. Minimal Requirements for Implementation
-
-Any conforming implementation must include:
-
-- **ABL validator module**  
-- **Semantic checksum generator**  
-- **Lineage recorder**  
-- **Ethical flag interpreter**  
-- **Drift detector** (baseline version)  
-- **Audit log** with append-only guarantees  
-
-Implementations that omit one of the above **cannot claim E-IP compliance**.
-
-## 9. Security Considerations
-
-- **Tampering:** alignment envelopes must be signed  
-- **Privacy:** sensitive fields must support redaction metadata  
-- **Replay Attacks:** lineage timestamps must be validated  
-- **Spoofing:** ethical flags cannot be downgraded without explicit governance approval
-
-## 10. Governance Hooks
-
-The ABL is the primary enforcement mechanism for the governance framework defined in **RFC-0001**.  
-Governance modules may:
-
-- Override routing decisions  
-- Require human review  
-- Flag high-risk intents  
-- Update ethical rulesets  
-
-ABL must expose its decisions to the governance layer via **standardized events**.
 
