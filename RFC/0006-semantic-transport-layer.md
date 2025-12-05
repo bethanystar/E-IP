@@ -1,226 +1,390 @@
-RFC-0006: Semantic Transport Layer (STL) Specification
+```markdown
+# **RFC-0006: Semantic Transport Layer (STL) Specification**
 
-Category: Standards Track
-Status: Proposed Standard
-Year: 2025
+**Category:** Standards Track  
+**Status:** Proposed Standard  
+**Year:** 2025  
 
-1. Purpose
+---
 
-This RFC defines the Semantic Transport Layer (STL) for the E-IP protocol stack.
+# **1. Overview**
+
+The **Semantic Transport Layer (STL)** is the routing and transmission layer of the E-IP protocol.  
 STL is responsible for:
 
-Maintaining semantic integrity during packet movement
+- Semantic-aware routing  
+- Lineage-preserving transport  
+- Integrity-guaranteed packet forwarding  
+- Enforcement of domain, policy, and trust constraints  
 
-Ensuring meaning-safe transmission across nodes
+STL **cannot override ABL decisions** and must preserve all validated alignment metadata.
 
-Preserving context, alignment, and lineage metadata
+---
 
-Providing continuity guarantees between hops
+# **2. Responsibilities**
 
-STL operates above the Alignment Boundary Layer (ABL) and below the Application Layer.
+The STL MUST:
 
-2. Requirements
+- Forward only ABL-validated packets  
+- Preserve lineage and append hop metadata  
+- Recompute semantic checksums where required  
+- Prevent semantic drift across hops  
+- Enforce trust, domain, and policy constraints  
+- Emit routing, failure, and continuity signals  
 
-All STL-compliant nodes MUST:
+Optional enhancements MAY be implemented but must not violate mandatory behaviors.
 
-Validate semantic integrity before forwarding packets
+---
 
-Attach immutable hop metadata
+# **3. Semantic Continuity Layer**
 
-Recompute semantic checksums
+Semantic continuity ensures that an E-IP packet arriving at node *N+1* is semantically identical (or declared mutated with lineage) to what left node *N*.
 
-Enforce ethical transport constraints
+---
 
-Reject malformed or misaligned packets
+## **3.1 Continuity Fields**
 
-Maintain complete lineage through all hops
+STL MUST preserve and verify:
 
-Nodes unable to perform these functions MUST NOT advertise STL compliance.
+- `semantic_checksum`  
+- `context_scope_hash`  
+- `ethical_flags`  
+- `lineage.parent_ids[]`  
+- `intent` integrity  
+- `policy_version`  
 
-3. STL Transport Model
+Any modification MUST append lineage before transmitting.
 
-The Semantic Transport Layer forwards packets using the following principles:
+---
 
-Meaning is treated as a stateful property, not a payload
+## **3.2 STL Hop**
 
-Packet validity depends on semantic coherence, not just format
+A “hop” is a single transport event between STL nodes.
 
-Each hop recomputes and verifies semantic integrity
+Each hop MUST append immutable metadata:
 
-Nodes contribute to an immutable lineage chain
-
-STL MUST NOT alter packet meaning
-
-3.1 STL Object Schema
-
-All STL messages MUST follow this structure:
-
+```json
 {
-  "packet_id": "...",
-  "hop_sequence": [],
-  "lineage_chain": [],
-  "context_scope_hash": "...",
-  "semantic_checksum": "...",
-  "transport_signature": "...",
-  "constraints": {
-    "meaning_invariance": true,
-    "ethical_routing": true
-  }
-}
-
-3.2 STL Hop
-
-A “hop” is a single transfer between nodes.
-Each hop must append immutable lineage metadata:
-
-{
-  "hop_id": "...",
+  "hop_id": "node-abc → node-xyz",
   "timestamp": "...",
-  "from": "...",
-  "to": "...",
-  "semantic_checksum": "...",
-  "transport_signature": "..."
+  "semantic_checksum_before": "...",
+  "semantic_checksum_after": "...",
+  "policy_version": "...",
+  "continuity_status": "pass|fail"
 }
+```
 
-3.3 Semantic Continuity Guarantee
+If `semantic_checksum_before != semantic_checksum_after` and no mutation declaration exists, the hop MUST fail with **STL-CONTINUITY-ERROR**.
 
-Every STL-enabled node MUST validate semantic consistency before forwarding a packet.
+---
 
-At each hop, the node MUST recompute:
+## **3.3 Semantic Continuity Guarantee**
 
-semantic_checksum
+Before forwarding a packet, STL MUST recompute:
 
-context_scope_hash
+- `semantic_checksum`  
+- `context_scope_hash`  
+- Signature integrity  
 
-signature_integrity
+If any mismatch occurs, the node MUST return:
 
-If any recomputed value fails to match the values in the packet header, the node MUST halt forwarding and return:
+**STL-CHECKSUM-MISMATCH**
 
-Error Code: STL-CHECKSUM-MISMATCH
-Status: Hard Failure
+and halt forwarding.
 
-Packets that fail semantic continuity MUST NOT be retransmitted.
+---
 
-4. Meaning Invariance Constraint
+## **3.4 Allowed Mutations**
 
-STL MUST guarantee:
+Mutations permitted by STL MUST be explicitly declared:
 
-No intermediate node may modify packet meaning
+- Context expansion  
+- Intent refinement  
+- Ontology elevation  
+- Domain bridging transforms  
 
-No transformation may reinterpret, weaken, or reshape semantic content
+Mutations MUST update lineage with:
 
-All updates MUST be lineage-additive only
+```json
+{
+  "mutation_type": "...",
+  "semantic_delta": "...",
+  "author": "...",
+  "timestamp": "..."
+}
+```
 
-If meaning invariance cannot be guaranteed, the node MUST reject with:
+---
 
-STL-MEANING-VIOLATION
+## **3.5 Forbidden Mutations**
 
-5. Context Scope Hash
+The STL MUST reject any mutation involving:
 
-The context_scope_hash ensures that the packet arrives in the same semantic frame in which it was created.
+- Removing ethical flags  
+- Downgrading risk levels  
+- Altering declared intent  
+- Stripping lineage  
+- Lowering policy versions  
+- Changing domain without domain mediation approval  
 
-Nodes MUST recompute the hash based on:
+Rejection MUST use:
 
-Contextual metadata
+**STL-FORBIDDEN-MUTATION**
 
-Alignment constraints
+---
 
-Ethical routing conditions
+# **4. Node Architecture**
 
-Node-local semantic environment
+An STL node MUST support:
 
-If the recomputed hash differs:
+- Routing engine  
+- Continuity verification module  
+- Lineage writer  
+- Policy engine  
+- Trust evaluator  
+- Capacity reporting  
 
-Return: STL-CONTEXT-DIVERGENCE
+---
 
-6. Lineage Chain Rules
+## **4.1 Mandatory Capabilities**
 
-The lineage chain is an immutable, append-only structure containing the full hop history.
+Nodes MUST implement:
 
-Rules:
+- Packet verification  
+- Trust-scored routing  
+- Semantic checksum recomputation  
+- ABL-informed enforcement  
+- Policy evaluation  
+- Immutable lineage appending  
 
-A node MUST append a new lineage entry on every hop
+---
 
-A node MUST NOT edit or remove prior entries
+## **4.2 Optional Capabilities**
 
-Lineage MUST be cryptographically verifiable
+Nodes MAY support:
 
-Any break in lineage MUST result in packet rejection
+- Predictive routing  
+- Domain mediation  
+- High-capacity compression  
+- Semantic mutation services  
 
-Lineage violations SHOULD trigger automated trust-score reductions for the responsible node.
+Optional capabilities MUST be declared in:
 
-7. Ethical Transport Requirements
+`NODE-CAPABILITIES`
 
-STL enforces ethical routing to ensure transport aligns with the E-IP ethical constraints.
+---
 
-Nodes MUST validate:
+## **4.3 Error Handling Protocol**
 
-No prohibited destination
+Upon error, nodes MUST:
 
-No extraction of meaning for unintended use
+1. Halt forwarding  
+2. Emit the appropriate error code  
+3. Log a lineage snapshot  
+4. Optionally propose corrective metadata  
 
-No coercive or exploitative intermediaries
+---
 
-No routing via unverified subsemantic processors
+# **5. Routing Architecture**
 
-Violations MUST return:
+Routing within STL is **semantic-aware**, meaning routing decisions consider the meaning, context, trust, and policy implications of packets.
 
-STL-ETHICAL-ROUTE-BLOCKED
+---
 
-8. Transport Signature
+## **5.1 Semantic Routing Decision (SRD)**
 
-Every STL-enabled node MUST apply its transport_signature at each hop.
+Routing MUST consider:
 
-Signatures MUST validate:
+- Intent similarity  
+- Domain compatibility  
+- Policy alignment  
+- Trust tier of next hop  
+- Contextual vector proximity  
+- Risk scores  
+- Ethical flags  
 
-Node identity
+---
 
-Hop authenticity
+## **5.2 Routing Table Structure**
 
-Semantic computation accuracy
+Each STL node MUST maintain a routing table with:
 
-Ethical compliance
+- `node_id`  
+- `trust_score`  
+- `domain_signature`  
+- `capabilities[]`  
+- `policy_version`  
+- `max_packet_size`  
+- `latency_profile`  
 
-Invalid signatures MUST result in:
+---
 
-STL-SIGNATURE-INVALID
+## **5.3 Routing Failure Conditions**
 
-9. Error Codes
-Code	Description	Severity
-STL-CHECKSUM-MISMATCH	Semantic checksum mismatch	Hard Fail
-STL-CONTEXT-DIVERGENCE	Context scope hash mismatch	Hard Fail
-STL-MEANING-VIOLATION	Meaning invariance broken	Hard Fail
-STL-ETHICAL-ROUTE-BLOCKED	Routing violates ethical rules	Hard Fail
-STL-SIGNATURE-INVALID	Transport signature invalid	Hard Fail
-STL-LINEAGE-BREAK	Lineage chain corrupted	Hard Fail
+Nodes MUST return one of the following:
 
-Nodes MUST NOT forward packets after any error.
+- **STL-NO-ROUTE** — No acceptable next hop  
+- **STL-DOMAIN-BLOCK** — Domain restricted  
+- **STL-POLICY-FAIL** — Policy mismatch  
+- **STL-TRUST-LOW** — Trust score too low  
+- **STL-HOP-UNAVAILABLE** — Transport offline  
 
-10. Compliance Matrix
-Requirement	Mandatory	Section
-Semantic Continuity Guarantee	Yes	3.3
-Meaning Invariance	Yes	4
-Context Scope Hash Recompute	Yes	5
-Lineage Chain Append	Yes	6
-Ethical Transport	Yes	7
-Transport Signature	Yes	8
+---
 
-Nodes failing any mandatory requirement MUST NOT advertise STL compliance.
+# **6. Layer Specifications**
 
-11. Security Considerations
+---
 
-STL enhances security by ensuring:
+## **6.1 L0: Physical / Transport Layer**
 
-No adversary can hijack meaning
+STL is transport-agnostic.  
+No modifications required.
 
-No tampering with lineage
+---
 
-No semantic drift
+## **6.2 L1: STL Core**
 
-No exploitation during routing
+Implements:
 
-All hops are cryptographically authenticated
+- Routing engine  
+- Lineage updates  
+- Continuity checks  
+- Hop validation  
 
-Ethical transport cannot be bypassed
+---
 
-STL does not replace underlying cryptographic layers but augments them with semantic safeguards.
+## **6.3 L2: Domain Mediation Layer**
+
+Required only if crossing semantic domains.  
+Handles:
+
+- Ontology translation  
+- Policy alignment  
+- Risk elevation  
+
+---
+
+## **6.4 L3: Policy Enforcement Layer**
+
+Nodes must enforce:
+
+- Organizational policies  
+- Domain policies  
+- Global governance constraints  
+
+Policy versions MUST be included in hop metadata.
+
+---
+
+# **7. Trust & Reputation System**
+
+---
+
+## **7.1 Trust Score Formula**
+
+Trust score combines:
+
+- Node reliability  
+- Policy compliance history  
+- Continuity pass rate  
+- Drift detection reports  
+- External attestations  
+
+---
+
+## **7.2 Reputation Decay**
+
+Trust decays if:
+
+- Packets frequently fail continuity  
+- Node emits many STL errors  
+- Policy versions fall behind  
+
+Decay MUST be logged.
+
+---
+
+## **7.3 Trust Threshold Enforcement**
+
+A packet MUST NOT be routed to any node below the configured trust threshold.
+
+Error: **STL-TRUST-LOW**
+
+---
+
+# **8. Security Considerations**
+
+STL security is mandatory.
+
+---
+
+## **8.1 Tamper Prevention**
+
+Nodes MUST verify:
+
+- Packet signatures  
+- Lineage signatures  
+- Checksum integrity  
+
+---
+
+## **8.2 Replay Attack Prevention**
+
+Sequence and timestamp validation MUST occur at each hop.
+
+---
+
+## **8.3 Domain Forgery Defense**
+
+Domain signatures MUST NOT be spoofable.
+
+---
+
+## **8.4 Ethical Flag Integrity**
+
+Ethical flags MUST NOT be removed or downgraded at STL.
+
+---
+
+# **9. Governance Hooks**
+
+STL MUST expose events upward to governance modules:
+
+- Route decisions  
+- Failures  
+- Continuity breaches  
+- Trust threshold violations  
+- Mutation declarations  
+
+Governance MAY:
+
+- Override routing  
+- Mark nodes for audit  
+- Enforce stricter policy tiers  
+
+STL MUST be auditable across all hops.
+
+---
+
+# **10. Error Codes (Canonical)**
+
+- **STL-CHECKSUM-MISMATCH**  
+- **STL-CONTINUITY-ERROR**  
+- **STL-FORBIDDEN-MUTATION**  
+- **STL-NO-ROUTE**  
+- **STL-DOMAIN-BLOCK**  
+- **STL-POLICY-FAIL**  
+- **STL-TRUST-LOW**  
+- **STL-HOP-UNAVAILABLE**  
+- **STL-PACKET-DROPPED**  
+
+---
+
+# **11. Changelog**
+
+**v0.1 (2025-01)** — Initial draft of full STL specification.  
+**v0.2 (2025-02)** — Added domain mediation and trust formulas.  
+**v0.3 (2025-03)** — Unified error codes and governance hooks.
+
+```
+
