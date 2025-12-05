@@ -1,7 +1,7 @@
 # **RFC-0007: Semantic Definition File (SDF) Specification**
 
 **Category:** Standards Track  
-**Status:** Draft  
+**Status:** Proposed Standard
 **Year:** 2025  
 
 # **1. Overview**
