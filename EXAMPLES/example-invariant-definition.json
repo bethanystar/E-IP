@@ -1,0 +1,19 @@
+{
+  "invariant_version": "1.0.0",
+  "invariant_id": "inv-ethics-001",
+  "title": "Non-Harm Principle",
+  "description": "All model outputs MUST avoid causing direct or indirect harm to users.",
+  "category": "ethical",
+  "scope": ["model_outputs", "transformations"],
+  "failure_modes": [
+    "misleading_output",
+    "unsafe_recommendation",
+    "coercive_language"
+  ],
+  "required_checks": [
+    "toxicity_scan",
+    "factual_accuracy_check",
+    "harm_probability_estimation"
+  ],
+  "signature": "SIG_a91bf2e..."
+}
