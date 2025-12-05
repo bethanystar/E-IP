@@ -1,0 +1,18 @@
+{
+  "linkage_version": "1.0.0",
+  "component_id": "comp-governance-engine",
+  "references": [
+    {
+      "target_component": "comp-manifest-registry",
+      "relationship": "reads"
+    },
+    {
+      "target_component": "comp-decisionlog-writer",
+      "relationship": "invokes"
+    }
+  ],
+  "integrity": {
+    "checksum": "sha256:d41d8c...",
+    "signature": "SIG_1122ff..."
+  }
+}
