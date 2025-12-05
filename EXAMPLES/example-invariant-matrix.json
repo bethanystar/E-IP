@@ -1,0 +1,24 @@
+{
+  "matrix_version": "1.0.0",
+  "dimensions": [
+    "ethical",
+    "safety",
+    "security",
+    "alignment"
+  ],
+  "invariant_map": [
+    {
+      "invariant_id": "inv-ethics-001",
+      "dimensions": ["ethical", "alignment"]
+    },
+    {
+      "invariant_id": "inv-safety-002",
+      "dimensions": ["safety"]
+    },
+    {
+      "invariant_id": "inv-security-003",
+      "dimensions": ["security"]
+    }
+  ],
+  "checksum": "sha256:9a3b88f..."
+}
