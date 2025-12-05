@@ -1,4 +1,3 @@
-```markdown
 # **RFC-0006: Semantic Transport Layer (STL) Specification**
 
 **Category:** Standards Track  
