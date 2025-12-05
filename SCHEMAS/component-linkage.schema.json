@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Component Linkage Schema",
+  "type": "object",
+  "required": ["linkage_version", "component_id", "references"],
+  "properties": {
+    "linkage_version": { "type": "string" },
+    "component_id": { "type": "string" },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target_component", "relationship"],
+        "properties": {
+          "target_component": { "type": "string" },
+          "relationship": { "type": "string" }
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "properties": {
+        "checksum": { "type": "string" },
+        "signature": { "type": "string" }
+      }
+    }
+  }
+}
