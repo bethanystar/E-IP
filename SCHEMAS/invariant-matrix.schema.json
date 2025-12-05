@@ -1,1 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Invariant Matrix Schema",
+  "type": "object",
+  "required": ["matrix_version", "dimensions", "invariant_map"],
+  "properties": {
+    "matrix_version": { "type": "string" },
+    "dimensions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "invariant_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["invariant_id", "dimensions"],
+        "properties": {
+          "invariant_id": { "type": "string" },
+          "dimensions": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "checksum": { "type": "string" }
+  }
+}
 
