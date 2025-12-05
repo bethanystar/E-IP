@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Invariant Definition Schema",
+  "type": "object",
+  "required": [
+    "invariant_version",
+    "invariant_id",
+    "title",
+    "description",
+    "category",
+    "required_checks",
+    "signature"
+  ],
+  "properties": {
+    "invariant_version": { "type": "string" },
+    "invariant_id": { "type": "string" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "category": { "type": "string" },
+    "scope": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "failure_modes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_checks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "signature": { "type": "string" }
+  }
+}
